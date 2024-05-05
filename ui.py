@@ -9,7 +9,7 @@ import csv
 class Application:
     def __init__(self, window):
         self.window = window
-        self.window.title("License Plate Recognition System")
+        self.window.title("Plate Master")
 
         # Set the background color of the main window
         self.window.configure(bg="light gray")

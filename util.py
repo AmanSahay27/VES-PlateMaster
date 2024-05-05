@@ -1,7 +1,7 @@
 import string
 import easyocr
 
-# Initialize the OCR reader
+# OCR reader
 reader = easyocr.Reader(['en'], gpu=False)
 
 # Mapping dictionaries for character conversion
@@ -21,14 +21,7 @@ dict_int_to_char = {'0': 'O',
 
 
 def write_csv(results, output_path):
-    """
-    Write the results to a CSV file while avoiding duplicate entries.
-
-    Args:
-        results (dict): Dictionary containing the results.
-        output_path (str): Path to the output CSV file.
-    """
-    # Use a set to track written combinations of frame_nmr and car_id
+    
     written_combinations = set()
     
     with open(output_path, 'w') as f:
@@ -41,14 +34,9 @@ def write_csv(results, output_path):
         # Iterate through the results dictionary
         for frame_nmr in results:
             for car_id in results[frame_nmr]:
-                # Create a combination key for the current frame and car
-                combination_key = (frame_nmr, car_id)
-                
-                # Check if this combination has already been written
+                combination_key = (frame_nmr, car_id)                
                 if combination_key in written_combinations:
-                    continue  # Skip writing duplicate data
-                
-                # Mark this combination as written
+                    continue  # Skip writing duplicate data                
                 written_combinations.add(combination_key)
                 
                 entry_time = results[frame_nmr][car_id].get('entry_time', '')
@@ -58,7 +46,6 @@ def write_csv(results, output_path):
                 car_data = results[frame_nmr][car_id].get('car', {})
                 license_plate_data = results[frame_nmr][car_id].get('license_plate', {})
                 
-                # Ensure car_data.get('bbox') returns a list with 4 elements
                 car_bbox = car_data.get('bbox', ['', '', '', ''])
                 if len(car_bbox) < 4:
                     car_bbox += [''] * (4 - len(car_bbox))
@@ -79,15 +66,7 @@ def write_csv(results, output_path):
 
 
 def license_complies_format(text):
-    """
-    Check if the license plate text complies with the required format.
-
-    Args:
-        text (str): License plate text.
-
-    Returns:
-        bool: True if the license plate complies with the format, False otherwise.
-    """
+    
     if len(text) != 7:
         return False
 
@@ -104,15 +83,7 @@ def license_complies_format(text):
 
 
 def format_license(text):
-    """
-    Format the license plate text by converting characters using the mapping dictionaries.
-
-    Args:
-        text (str): License plate text.
-
-    Returns:
-        str: Formatted license plate text.
-    """
+    
     license_plate_ = ''
     mapping = {0: dict_int_to_char, 1: dict_int_to_char, 4: dict_int_to_char, 5: dict_int_to_char, 6: dict_int_to_char,
                2: dict_char_to_int, 3: dict_char_to_int}
@@ -126,16 +97,7 @@ def format_license(text):
 
 
 def read_license_plate(license_plate_crop):
-    """
-    Read the license plate text from the given cropped image.
-
-    Args:
-        license_plate_crop (PIL.Image.Image): Cropped image containing the license plate.
-
-    Returns:
-        tuple: Tuple containing the formatted license plate text and its confidence score.
-    """
-
+    
     detections = reader.readtext(license_plate_crop)
 
     for detection in detections:
@@ -150,16 +112,7 @@ def read_license_plate(license_plate_crop):
 
 
 def get_car(license_plate, vehicle_track_ids):
-    """
-    Retrieve the vehicle coordinates and ID based on the license plate coordinates.
-
-    Args:
-        license_plate (tuple): Tuple containing the coordinates of the license plate (x1, y1, x2, y2, score, class_id).
-        vehicle_track_ids (list): List of vehicle track IDs and their corresponding coordinates.
-
-    Returns:
-        tuple: Tuple containing the vehicle coordinates (x1, y1, x2, y2) and ID.
-    """
+    
     x1, y1, x2, y2, score, class_id = license_plate
 
     foundIt = False
